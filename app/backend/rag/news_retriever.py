@@ -10,9 +10,7 @@ NEWS_API_URL = "https://newsapi.org/v2/everything"
 API_KEY = os.getenv("NEWS_API_KEY")
 
 async def search_news(query: str):
-    """
-    NewsAPI üzerinden asenkron haber araması yapar.
-    """
+   
     if not API_KEY:
         logger.warning("NewsAPI Key eksik! .env dosyasını kontrol edin.")
         return []
