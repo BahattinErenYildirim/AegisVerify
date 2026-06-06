@@ -1,7 +1,7 @@
 import httpx
 import logging
 
-# Profesyonel Loglama: Print yerine logger kullanıyoruz
+
 logger = logging.getLogger("AegisRAG")
 
 WIKI_API = "https://en.wikipedia.org/w/api.php"
@@ -23,7 +23,7 @@ async def search_wikipedia(query: str):
             "format": "json"
         }
         
-        # AsyncClient ile non-blocking (bloklamayan) istek
+        
         async with httpx.AsyncClient() as client:
             response = await client.get(WIKI_API, params=params, timeout=5.0)
             
