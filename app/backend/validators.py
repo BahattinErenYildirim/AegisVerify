@@ -4,7 +4,7 @@ from typing import Dict
 def logic_consistency_check(text: str) -> Dict:
     text_lower = text.lower()
 
-    # ---- 1. Contradiction Detection ----
+   
     contradiction_patterns = [
         (r"\bnever\b.*\bbut\b", "Contradiction: 'never' and 'but' used together"),
         (r"\balways\b.*\bexcept\b", "Contradiction between 'always' and 'except'"),
@@ -16,7 +16,7 @@ def logic_consistency_check(text: str) -> Dict:
         if re.search(pattern, text_lower):
             contradictions_found.append(description)
 
-    # ---- 2. Overclaiming / Overconfidence Detection ----
+  
     overclaim_keywords = [
         "guaranteed",
         "100% true",
@@ -26,7 +26,7 @@ def logic_consistency_check(text: str) -> Dict:
     ]
     overclaims = [w for w in overclaim_keywords if w in text_lower]
 
-    # ---- 3. Uncertainty Signals ----
+  
     uncertainty_keywords = [
         "maybe",
         "possibly",
@@ -36,7 +36,7 @@ def logic_consistency_check(text: str) -> Dict:
     ]
     uncertainties = [w for w in uncertainty_keywords if w in text_lower]
 
-    # ---- 4. Logical Red Flags ----
+    
     logical_red_flags = [
         ("all people", "Overgeneralization"),
         ("everyone knows", "Unverifiable collective claim"),
@@ -46,7 +46,7 @@ def logic_consistency_check(text: str) -> Dict:
         desc for kw, desc in logical_red_flags if kw in text_lower
     ]
 
-    # ---- 5. Score Calculation ----
+    
     score = 100
     score -= len(contradictions_found) * 15
     score -= len(overclaims) * 8
@@ -55,7 +55,7 @@ def logic_consistency_check(text: str) -> Dict:
 
     score = max(0, min(100, score))
 
-    # Final structured report
+   
     return {
         "score": score,
         "contradictions": contradictions_found,
