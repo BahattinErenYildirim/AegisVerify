@@ -9,15 +9,11 @@ from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 
-# ===================================================================
-# 🔥 ÖNEMLİ DÜZELTME: PATH VE ENV AYARLARI EN BAŞA ALINDI
-# ===================================================================
-# Şu anki dosyanın olduğu klasörü bul
+
 BACKEND_DIR = Path(__file__).resolve().parent
 ENV_PATH = BACKEND_DIR / ".env"
 
-# Import sorunlarını çözmek için backend klasörünü path'e ekle
-# Bu işlem, aşağıdaki 'consensus', 'rag', 'scam' importlarından ÖNCE yapılmalıdır.
+
 sys.path.append(str(BACKEND_DIR))
 
 print("========== ENV DEBUG START ==========")
@@ -31,18 +27,11 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 print(f"Loaded GEMINI_API_KEY: {'***' + API_KEY[-4:] if API_KEY else 'None'}")
 print("========== ENV DEBUG END ==========")
 
-# ===================================================================
-# 🔧 Loglama Ayarları
-# ===================================================================
-# Initialize logging early
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("AegisBackend")
 
-# ===================================================================
-# 📦 Modül İçe Aktarmaları (Artık Path Eklendiği İçin Çalışacaktır)
-# ===================================================================
 
-# AegisVerify Extended Modules - Try to import, but don't fail if missing
 try:
     from consensus.engine import ConsensusEngine
     from consensus.models import SimpleLLMModel
@@ -79,10 +68,7 @@ try:
 except ImportError as e:
     logger.warning(f"Pipeline modules not available: {e}")
     PIPELINE_AVAILABLE = False
-
-# ===================================================================
-# 📦 Diğer İçe Aktarmalar (Core & Validators)
-# ===================================================================
+=
 try:
     # UCANBLEHUB ESSENTIAL NEVER DELETE OR CHANGE
     from core import setup_ucanblehub_essentials
@@ -93,10 +79,7 @@ except ImportError:
     from app.backend.core import setup_ucanblehub_essentials
     from app.backend.validators import logic_consistency_check
 
-# ===================================================================
-# 🔧 Modül Başlatmaları (Initialize)
-# ===================================================================
-# Initialize extended modules if available
+
 if RAG_AVAILABLE:
     rag_checker = RAGChecker()
     logger.info("✅ RAG Checker initialized")
@@ -118,7 +101,7 @@ if CONSENSUS_AVAILABLE:
 
 app = FastAPI(title="Gemini Chat Service - AegisVerify")
 
-# UCANBLEHUB Setup
+
 setup_ucanblehub_essentials(app)
 
 MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
@@ -159,9 +142,7 @@ evidence-based verification and risk assessment.
 - Professional forensic analysis style
 """
 
-# ===================================================================
-# 📦 Veri Modelleri
-# ===================================================================
+
 class Message(BaseModel):
     role: str
     content: str
@@ -183,9 +164,7 @@ async def ask_assistant(payload: ChatInput):
 
         logger.info(f"Analiz Başliyor: {last_message_content[:30]}...")
 
-        # ===========================================================
-        # 🔍 1) AegisVerify — Reliability Analyzer (Python Logic)
-        # ===========================================================
+        
         try:
             reliability = logic_consistency_check(last_message_content)
         except Exception as e:
@@ -199,9 +178,7 @@ async def ask_assistant(payload: ChatInput):
                 'logical_issues': ['Analyzer Error']
             }
 
-        # ===========================================================
-        # 🛡️ 2) Scam Detection (if available)
-        # ===========================================================
+       
         scam_analysis = None
         if SCAM_AVAILABLE:
             try:
@@ -226,10 +203,7 @@ async def ask_assistant(payload: ChatInput):
                 logger.error(f"RAG Checker Hatası: {e}")
                 rag_results = None
 
-        # ===========================================================
-        # 🤖 4) LLM analizini üret (Google Gemini)
-        # ===========================================================
-        # Gemini çağrısı (Senkron çalışmaya devam ediyor, uyumluluk için)
+       
         response = client.models.generate_content(
             model=MODEL_NAME,
             config=types.GenerateContentConfig(
@@ -246,9 +220,7 @@ async def ask_assistant(payload: ChatInput):
 
         logger.info("LLM Yanıtı başarıyla oluşturuldu.")
 
-        # ===========================================================
-        # 🧩 5) Tüm sonuçları birleştir
-        # ===========================================================
+    
         analysis_sections = []
         
         # Reliability Section
@@ -263,7 +235,7 @@ async def ask_assistant(payload: ChatInput):
         # Scam Detection Section
         if scam_analysis:
             analysis_sections.append(f"""
-### ⚠️ Scam Risk Detection
+
 - **Overall Risk Score:** {scam_analysis.get('overall_risk_score', 0)} / 100
 - **Is Scam Risk:** {'🔴 HIGH RISK' if scam_analysis.get('is_scam_risk', False) else '🟢 Low Risk'}
 - **Email Analysis Score:** {scam_analysis.get('email_analysis', {}).get('risk_score', 0)} / 100
@@ -275,7 +247,7 @@ async def ask_assistant(payload: ChatInput):
         # RAG Results Section
         if rag_results:
             analysis_sections.append(f"""
-### 📚 Source Verification (RAG)
+
 - **Wikipedia Results:** {rag_results.get('wikipedia_results', 0)}
 - **News Results:** {rag_results.get('news_results', 0)}
 - **FactCheck Results:** {rag_results.get('factcheck_results', 0)}
@@ -285,7 +257,7 @@ async def ask_assistant(payload: ChatInput):
         analysis_sections.append(f"""
 ---
 
-### 🤖 AI Forensic Verification Report
+
 {response.text}
 """)
 
@@ -304,9 +276,7 @@ async def ask_assistant(payload: ChatInput):
         raise HTTPException(status_code=500, detail=f"Servis hatası: {str(e)}")
 
 
-# ===================================================================
-# ❤️ Health Check
-# ===================================================================
+
 @app.get("/health")
 def health_check():
     return {
@@ -316,9 +286,6 @@ def health_check():
         "mode": "AegisVerify Active"
     }
 
-# ===================================================================
-# 🔍 Module Status Check
-# ===================================================================
 @app.get("/modules/status")
 def module_status():
     """Check which modules are loaded and available"""
