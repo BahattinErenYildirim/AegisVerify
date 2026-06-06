@@ -1,6 +1,6 @@
 import asyncio
 import logging
-# RAG modüllerini içe aktarıyoruz
+
 try:
     from rag.checker import RAGChecker
     RAG_AVAILABLE = True
@@ -21,22 +21,18 @@ def cross_check_sources(text: str):
         }
 
     try:
-        # Asenkron RAGChecker'ı başlat
+        
         checker = RAGChecker()
         
-        # Mevcut bir event loop var mı kontrol et, yoksa yeni oluştur
+       
         try:
             loop = asyncio.get_event_loop()
         except RuntimeError:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
 
-        # Asenkron check fonksiyonunu çalıştır ve sonucu bekle
         if loop.is_running():
-            # Eğer halihazırda çalışan bir loop içindeysek (örn: FastAPI)
-            # Bu durumda doğrudan çağırmak zordur, nest_asyncio gerekebilir veya
-            # mimariyi tamamen async yapmak gerekir. 
-            # Şimdilik basit bir "check" sonucu dönüyoruz.
+            
              return {
                 "status": "running_async",
                 "details": "Async execution context detected."
